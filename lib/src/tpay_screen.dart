@@ -93,7 +93,9 @@ class _TpayScreenState extends State<TpayScreen> {
   }
 
   void _closeAndReturn({TpayResult? result}) {
-    Navigator.of(context).pop(result);
+    final tpayResult = result ?? TpayResult.error;
+
+    Navigator.of(context).pop(tpayResult);
   }
 
   @override

@@ -3,4 +3,5 @@ enum TpayResult {
   backButtonPressed,
   sessionClosed,
   paymentRequest,
+  error
 }
