@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
+/// Tpay payment model.
 class TpayPayment {
-  /// TODO: Add documentation
+  /// Creates a new Tpay payment.
   TpayPayment({
     required this.id,
     required this.amount,
@@ -56,9 +57,9 @@ class TpayPayment {
           acceptTerms: acceptTerms,
         ),
         assert(md5Code != null || securityCode != null,
-            'You must provide either md5Code or securityCode');
+            'You must provide either md5Code or securityCode',);
 
-  /// TODO: Add documentation
+  /// Creates a new Tpay payment from a payment link.
   TpayPayment.fromLink(this.paymentLink)
       : id = null,
         amount = null,
@@ -198,11 +199,11 @@ class TpayPayment {
     String? clientPhone,
     String? acceptTerms,
   }) {
-    var buffer = StringBuffer('https://secure.tpay.com/?id=')
-      ..write(id)
-      ..write('&kwota=$amount')
-      ..write('&opis=$description')
-      ..write('&crc=$crc');
+    final buffer = StringBuffer('https://secure.tpay.com/?id=')
+      ..write(Uri.encodeComponent(id ?? ''))
+      ..writeAndUrlEncode('kwota', amount)
+      ..writeAndUrlEncode('opis', description)
+      ..writeAndUrlEncode('crc', crc);
 
     if (md5Code?.isNotEmpty ?? false) {
       buffer.write('&md5sum=$md5Code');
@@ -215,77 +216,86 @@ class TpayPayment {
     }
 
     if (online?.isNotEmpty ?? false) {
-      buffer.write('&online=$online');
+      buffer.writeAndUrlEncode('online', online);
     }
 
     if (canal?.isNotEmpty ?? false) {
-      buffer.write('&kanal=$canal');
+      buffer.writeAndUrlEncode('kanal', canal);
     }
 
     if (group?.isNotEmpty ?? false) {
-      buffer.write('&grupa=$group');
+      buffer.writeAndUrlEncode('grupa', group);
     }
 
     if (resultUrl?.isNotEmpty ?? false) {
-      buffer.write('&wyn_url=$resultUrl');
+      buffer.writeAndUrlEncode('wyn_url', returnUrl);
     }
 
     if (resultEmail?.isNotEmpty ?? false) {
-      buffer.write('&wyn_email=$resultEmail');
+      buffer.writeAndUrlEncode('wyn_email', resultEmail);
     }
 
     if (sellerDescription?.isNotEmpty ?? false) {
-      buffer.write('&opis_sprzed=$sellerDescription');
+      buffer.writeAndUrlEncode('opis_sprzed', sellerDescription);
     }
 
     if (additionalDescription?.isNotEmpty ?? false) {
-      buffer.write('&opis_dodatkowy=$additionalDescription');
+      buffer.writeAndUrlEncode('opis_dodatkowy', additionalDescription);
     }
 
     if (returnUrl?.isNotEmpty ?? false) {
-      buffer.write('&pow_url=$returnUrl');
+      buffer.writeAndUrlEncode('pow_url', returnUrl);
     }
 
     if (returnErrorUrl?.isNotEmpty ?? false) {
-      buffer.write('&pow_url_blad=$returnErrorUrl');
+      buffer.writeAndUrlEncode('pow_url_blad', returnErrorUrl);
     }
 
     if (language?.isNotEmpty ?? false) {
-      buffer.write('&jezyk=$language');
+      buffer.writeAndUrlEncode('jezyk', language);
     }
 
     if (clientEmail?.isNotEmpty ?? false) {
-      buffer.write('&email=$clientEmail');
+      buffer.writeAndUrlEncode('email', clientEmail);
     }
 
     if (clientName?.isNotEmpty ?? false) {
-      buffer.write('&nazwisko=$clientName');
+      buffer.writeAndUrlEncode('nazwisko', clientName);
     }
 
     if (clientAddress?.isNotEmpty ?? false) {
-      buffer.write('&adres=$clientAddress');
+      buffer.writeAndUrlEncode('adres', clientAddress);
     }
 
     if (clientCity?.isNotEmpty ?? false) {
-      buffer.write('&miasto=$clientCity');
+      buffer.writeAndUrlEncode('miasto', clientCity);
     }
 
     if (clientCode?.isNotEmpty ?? false) {
-      buffer.write('&kod=$clientCode');
+      buffer.writeAndUrlEncode('kod', clientCode);
     }
 
     if (clientCountry?.isNotEmpty ?? false) {
-      buffer.write('&kraj=$clientCountry');
+      buffer.writeAndUrlEncode('kraj', clientCountry);
     }
 
     if (clientPhone?.isNotEmpty ?? false) {
-      buffer.write('&telefon=$clientPhone');
+      buffer.writeAndUrlEncode('telefon', clientPhone);
     }
 
     if (acceptTerms?.isNotEmpty ?? false) {
-      buffer.write('&akceptuje_regulamin=$acceptTerms');
+      buffer.writeAndUrlEncode('akceptuje_regulamin', acceptTerms);
     }
 
     return buffer.toString();
+  }
+}
+
+extension on StringBuffer {
+  void writeAndUrlEncode(String field, String? value) {
+    if (value?.isNotEmpty ?? false) {
+      write('&$field=');
+      write(Uri.encodeComponent(value!));
+    }
   }
 }

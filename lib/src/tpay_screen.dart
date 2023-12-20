@@ -56,7 +56,7 @@ class _TpayScreenState extends State<TpayScreen> {
           onProgress: (progress) {},
           onPageStarted: (url) {
             if (url.toLowerCase() ==
-                Constants.TPAY_MAIN_PAGE_URL.toLowerCase()) {
+                Constants.tpayBaseUrl.toLowerCase()) {
               _closeAndReturn();
             } else if (url.contains('error.php')) {
               _closeAndReturn(result: TpayResult.sessionClosed);
