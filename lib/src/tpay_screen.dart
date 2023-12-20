@@ -8,12 +8,12 @@ import 'package:webview_flutter/webview_flutter.dart';
 class TpayScreen extends StatefulWidget {
   /// Creates Tpay screen used for payments.
   const TpayScreen({
-    super.key,
+    Key? key,
     this.successUrl = 'about:blank?status=success',
     this.errorUrl = 'about:blank?status=error',
     required this.payment,
     this.title,
-  });
+  }) : super(key: key);
 
   /// Url used to determine when to pop if payment succeed.
   final String successUrl;
@@ -32,48 +32,9 @@ class TpayScreen extends StatefulWidget {
 }
 
 class _TpayScreenState extends State<TpayScreen> {
-  final controller = WebViewController();
-
   @override
   void initState() {
     super.initState();
-
-    controller
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..enableZoom(true)
-      ..addJavaScriptChannel(
-        'Tpay',
-        onMessageReceived: (message) {
-          if (message.message == 'onPaymentSuccess') {
-            _closeAndReturn(result: TpayResult.success);
-          } else if (message.message == 'onPaymentFail') {
-            _closeAndReturn();
-          }
-        },
-      )
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onProgress: (progress) {},
-          onPageStarted: (url) {
-            if (url.toLowerCase() ==
-                Constants.tpayBaseUrl.toLowerCase()) {
-              _closeAndReturn();
-            } else if (url.contains('error.php')) {
-              _closeAndReturn(result: TpayResult.sessionClosed);
-            }
-          },
-          onPageFinished: (url) {
-            if (url.toLowerCase().startsWith(widget.successUrl.toLowerCase())) {
-              _closeAndReturn(result: TpayResult.success);
-            } else if (url
-                .toLowerCase()
-                .startsWith(widget.errorUrl.toLowerCase())) {
-              _closeAndReturn();
-            }
-          },
-        ),
-      )
-      ..loadRequest(Uri.parse(widget.payment.paymentLink ?? ''));
   }
 
   @override
@@ -87,7 +48,34 @@ class _TpayScreenState extends State<TpayScreen> {
         appBar: AppBar(
           title: widget.title,
         ),
-        body: WebViewWidget(controller: controller),
+        body: WebView(
+          initialUrl: widget.payment.paymentLink,
+          onPageStarted: (url) {
+            if (url.toLowerCase() == Constants.tpayBaseUrl.toLowerCase()) {
+              _closeAndReturn();
+            } else if (url.contains('error.php')) {
+              _closeAndReturn(result: TpayResult.sessionClosed);
+            }
+          },
+          onPageFinished: (url) {
+            if (url.toLowerCase() == Constants.tpayBaseUrl.toLowerCase()) {
+              _closeAndReturn();
+            } else if (url.contains('error.php')) {
+              _closeAndReturn(result: TpayResult.sessionClosed);
+            }
+          },
+          javascriptMode: JavascriptMode.unrestricted,
+          navigationDelegate: (request) {
+            if (request.url.toLowerCase() ==
+                Constants.tpayBaseUrl.toLowerCase()) {
+              _closeAndReturn();
+            } else if (request.url.contains('error.php')) {
+              _closeAndReturn(result: TpayResult.sessionClosed);
+            }
+
+            return NavigationDecision.navigate;
+          },
+        ),
       ),
     );
   }
