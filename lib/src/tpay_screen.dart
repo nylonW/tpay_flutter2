@@ -56,23 +56,8 @@ class _TpayScreenState extends State<TpayScreen> {
   final controller = WebViewController();
   BuildContext? dialogContext;
 
-  bool canPop = true;
-
-  // Method to handle URL changes
-  Future<void> _handleUrlChange(String url) async {
-    if (url == widget.successUrl) {
-      _closeAndReturn(result: TpayResult.success);
-    } else if (url == widget.errorUrl) {
-      _closeAndReturn();
-    } else {
-      canPop = !url.startsWith(
-          'https://secure.tpay.com/Confirmation/Realize/transaction');
-      setState(() {}); // Update canPop state
-    }
-  }
-
-  void _handleBackNavigation() async {
-    String? currentUrl = await controller.currentUrl();
+  Future<void> _handleBackNavigation() async {
+    final currentUrl = await controller.currentUrl();
     if (currentUrl?.startsWith(
             'https://secure.tpay.com/Confirmation/Realize/transaction') ??
         false) {
@@ -110,8 +95,6 @@ class _TpayScreenState extends State<TpayScreen> {
           },
           onPageStarted: (url) {
             print(url);
-
-            _handleUrlChange(url);
 
             if (url.toLowerCase() == Constants.tpayBaseUrl.toLowerCase()) {
               _closeAndReturn();
