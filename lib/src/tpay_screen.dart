@@ -152,11 +152,11 @@ class _TpayScreenState extends State<TpayScreen> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) {
+      onPopInvoked: (didPop) async {
         if (didPop) {
           return;
         }
-        _handleBackNavigation();
+        await _handleBackNavigation();
       },
       child: Scaffold(
         appBar: AppBar(
