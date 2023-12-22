@@ -105,6 +105,10 @@ class _TpayScreenState extends State<TpayScreen> {
           onProgress: (progress) {
             print(progress);
           },
+          onUrlChange: (urlChange) {
+            final url = urlChange.url ?? '';
+            print(url);
+          },
           onPageStarted: (url) {
             print(url);
 
