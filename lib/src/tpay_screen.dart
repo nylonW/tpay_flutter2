@@ -57,7 +57,7 @@ class _TpayScreenState extends State<TpayScreen> {
   BuildContext? dialogContext;
 
   final ignoreUrls = [
-    'https://secure.tpay.com/Confirmation/Realize/transaction',
+    // 'https://secure.tpay.com/Confirmation/Realize/transaction',
     'https://secure.tpay.com/Transaction/Bank/return'
   ];
 
@@ -129,7 +129,7 @@ class _TpayScreenState extends State<TpayScreen> {
   }
 
   Future<bool?> _showCloseDialog() async {
-    return showDialog<bool>(
+    final dialogResults = showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
@@ -157,6 +157,10 @@ class _TpayScreenState extends State<TpayScreen> {
         );
       },
     );
+
+    dialogContext = null;
+
+    return dialogResults;
   }
 
   // PopScope widget
