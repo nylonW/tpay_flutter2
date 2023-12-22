@@ -153,6 +153,9 @@ class _TpayScreenState extends State<TpayScreen> {
     return PopScope(
       canPop: false,
       onPopInvoked: (didPop) {
+        if (didPop) {
+          return;
+        }
         _handleBackNavigation();
       },
       child: Scaffold(
