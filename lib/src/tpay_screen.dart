@@ -56,11 +56,19 @@ class _TpayScreenState extends State<TpayScreen> {
   final controller = WebViewController();
   BuildContext? dialogContext;
 
+  final ignoreUrls = [
+    'https://secure.tpay.com/Confirmation/Realize/transaction',
+    'https://secure.tpay.com/Transaction/Bank/return'
+  ];
+
   Future<void> _handleBackNavigation() async {
     final currentUrl = await controller.currentUrl();
-    if (currentUrl?.startsWith(
-            'https://secure.tpay.com/Confirmation/Realize/transaction') ??
-        false) {
+
+    final ignore = ignoreUrls.any(
+      (url) => currentUrl?.toLowerCase().startsWith(url.toLowerCase()) ?? false,
+    );
+    
+    if (ignore) {
       // Do nothing if realizing
     } else if (currentUrl == widget.successUrl) {
       _closeAndReturn(result: TpayResult.success);
