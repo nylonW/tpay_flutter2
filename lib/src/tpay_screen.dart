@@ -13,6 +13,11 @@ class TpayScreen extends StatefulWidget {
     this.errorUrl = 'about:blank?status=error',
     required this.payment,
     this.title,
+    this.exitAlertTitle = 'Exit payment screen?',
+    this.exitAlertContent =
+        'Are you sure you want to exit payment screen? If you already made a payment, it will be processed.',
+    this.positiveAlertButtonLabel = 'Yes',
+    this.negativeAlertButtonLabel = 'No',
   });
 
   /// Url used to determine when to pop if payment succeed.
@@ -26,6 +31,22 @@ class TpayScreen extends StatefulWidget {
 
   /// Payment screen title widget.
   final Widget? title;
+
+  /// Exit alert title text.
+  /// Defaults to 'Exit payment screen?'.
+  final String exitAlertTitle;
+
+  /// Exit alert content text.
+  /// Defaults to 'Are you sure you want to exit payment screen?'.
+  final String exitAlertContent;
+
+  /// Exit alert positive button text.
+  /// Defaults to 'Yes'.
+  final String positiveAlertButtonLabel;
+
+  /// Exit alert negative button text.
+  /// Defaults to 'No'.
+  final String negativeAlertButtonLabel;
 
   @override
   State<TpayScreen> createState() => _TpayScreenState();
@@ -53,10 +74,12 @@ class _TpayScreenState extends State<TpayScreen> {
       )
       ..setNavigationDelegate(
         NavigationDelegate(
-          onProgress: (progress) {},
+          onProgress: (progress) {
+            print(progress);
+          },
           onPageStarted: (url) {
-            if (url.toLowerCase() ==
-                Constants.tpayBaseUrl.toLowerCase()) {
+            print(url);
+            if (url.toLowerCase() == Constants.tpayBaseUrl.toLowerCase()) {
               _closeAndReturn();
             } else if (url.contains('error.php')) {
               _closeAndReturn(result: TpayResult.sessionClosed);
@@ -76,13 +99,38 @@ class _TpayScreenState extends State<TpayScreen> {
       ..loadRequest(Uri.parse(widget.payment.paymentLink ?? ''));
   }
 
+  Future<void> _showCloseDialog() async {
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => PopScope(
+        canPop: false,
+        child: AlertDialog(
+          title: Text(widget.exitAlertTitle),
+          content: Text(widget.exitAlertContent),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(widget.positiveAlertButtonLabel),
+            ),
+            TextButton(
+              onPressed: () =>
+                  _closeAndReturn(result: TpayResult.backButtonPressed),
+              child: Text(widget.negativeAlertButtonLabel),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        _closeAndReturn(result: TpayResult.backButtonPressed);
-        return false;
-      },
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) => _showCloseDialog(),
       child: Scaffold(
         appBar: AppBar(
           title: widget.title,
