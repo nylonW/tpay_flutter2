@@ -54,6 +54,7 @@ class TpayScreen extends StatefulWidget {
 
 class _TpayScreenState extends State<TpayScreen> {
   final controller = WebViewController();
+  bool shouldOverrideBackButton = false;
 
   @override
   void initState() {
@@ -79,6 +80,10 @@ class _TpayScreenState extends State<TpayScreen> {
           },
           onPageStarted: (url) {
             print(url);
+
+            shouldOverrideBackButton =
+                url.startsWith('https://secure.tpay.com/Confirmation/');
+
             if (url.toLowerCase() == Constants.tpayBaseUrl.toLowerCase()) {
               _closeAndReturn();
             } else if (url.contains('error.php')) {
@@ -99,8 +104,8 @@ class _TpayScreenState extends State<TpayScreen> {
       ..loadRequest(Uri.parse(widget.payment.paymentLink ?? ''));
   }
 
-  Future<void> _showCloseDialog() async {
-    await showDialog<void>(
+  Future<bool?> _showCloseDialog() async {
+    return showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (context) => PopScope(
@@ -111,14 +116,16 @@ class _TpayScreenState extends State<TpayScreen> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(true);
               },
               child: Text(widget.positiveAlertButtonLabel),
             ),
             TextButton(
               onPressed: () =>
                   _closeAndReturn(result: TpayResult.backButtonPressed),
-              child: Text(widget.negativeAlertButtonLabel),
+              child: Text(
+                widget.negativeAlertButtonLabel,
+              ),
             ),
           ],
         ),
@@ -126,11 +133,19 @@ class _TpayScreenState extends State<TpayScreen> {
     );
   }
 
+  Future<bool> _onWillPop() async {
+    if (shouldOverrideBackButton && await controller.canGoBack()) {
+      await controller.goBack();
+      return false;
+    } else {
+      return (await _showCloseDialog()) ?? false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvoked: (didPop) => _showCloseDialog(),
+    return WillPopScope(
+      onWillPop: _onWillPop,
       child: Scaffold(
         appBar: AppBar(
           title: widget.title,
