@@ -145,10 +145,10 @@ class _TpayScreenState extends State<TpayScreen> {
     final currentUrl = await controller.currentUrl();
     if (currentUrl == widget.successUrl) {
       _closeAndReturn(result: TpayResult.success);
-      return false;
+      return true;
     } else if (currentUrl == widget.errorUrl) {
       _closeAndReturn();
-      return false;
+      return true;
     }
 
     return (await _showCloseDialog()) ?? false;
