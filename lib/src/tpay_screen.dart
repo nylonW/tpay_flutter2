@@ -190,7 +190,7 @@ class _TpayScreenState extends State<TpayScreen> {
       Navigator.of(dialogContext!).pop();
     }
 
-    Navigator.of(context, rootNavigator: true).pop(tpayResult);
+    Navigator.of(context, rootNavigator: false).pop(tpayResult);
   }
 
   @override
