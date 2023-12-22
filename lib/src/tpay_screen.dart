@@ -54,6 +54,7 @@ class TpayScreen extends StatefulWidget {
 
 class _TpayScreenState extends State<TpayScreen> {
   final controller = WebViewController();
+  BuildContext? dialogContext;
 
   @override
   void initState() {
@@ -105,6 +106,8 @@ class _TpayScreenState extends State<TpayScreen> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
+        dialogContext = context;
+
         return AlertDialog(
           title: Text(widget.exitAlertTitle),
           content: Text(widget.exitAlertContent),
@@ -155,6 +158,10 @@ class _TpayScreenState extends State<TpayScreen> {
 
   void _closeAndReturn({TpayResult? result}) {
     final tpayResult = result ?? TpayResult.error;
+
+    if (dialogContext != null) {
+      Navigator.of(dialogContext!).pop();
+    }
 
     Navigator.of(context, rootNavigator: true).pop(tpayResult);
   }
