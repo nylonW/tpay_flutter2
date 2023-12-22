@@ -141,6 +141,7 @@ class _TpayScreenState extends State<TpayScreen> {
           actions: [
             TextButton(
               onPressed: () {
+                dialogContext = null;
                 Navigator.of(context)
                     .pop(true); // Return true to indicate a desire to exit
               },
@@ -148,6 +149,7 @@ class _TpayScreenState extends State<TpayScreen> {
             ),
             TextButton(
               onPressed: () {
+                dialogContext = null;
                 Navigator.of(context)
                     .pop(false); // Return false to stay on the screen
               },
