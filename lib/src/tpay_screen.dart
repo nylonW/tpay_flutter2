@@ -13,9 +13,9 @@ class TpayScreen extends StatefulWidget {
     this.errorUrl = 'about:blank?status=error',
     required this.payment,
     this.title,
-    this.exitAlertTitle = 'Exit payment screen?',
+    this.exitAlertTitle = 'Do you want to cancel payment?',
     this.exitAlertContent =
-        'Are you sure you want to exit payment screen? If you already made a payment, it will be processed.',
+        'Payment is in progress. Are you sure you want to cancel payment?',
     this.positiveAlertButtonLabel = 'Yes',
     this.negativeAlertButtonLabel = 'No',
   });
