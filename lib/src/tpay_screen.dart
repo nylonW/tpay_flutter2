@@ -56,7 +56,20 @@ class _TpayScreenState extends State<TpayScreen> {
   final controller = WebViewController();
   BuildContext? dialogContext;
 
-  bool isRealizing = false;
+  bool canPop = true;
+
+  // Method to handle URL changes
+  Future<void> _handleUrlChange(String url) async {
+    if (url == widget.successUrl) {
+      _closeAndReturn(result: TpayResult.success);
+    } else if (url == widget.errorUrl) {
+      _closeAndReturn();
+    } else {
+      canPop = !url.startsWith(
+          'https://secure.tpay.com/Confirmation/Realize/transaction');
+      setState(() {}); // Update canPop state
+    }
+  }
 
   @override
   void initState() {
@@ -83,8 +96,7 @@ class _TpayScreenState extends State<TpayScreen> {
           onPageStarted: (url) {
             print(url);
 
-            isRealizing = url.toLowerCase().startsWith(
-                'https://secure.tpay.com/Confirmation/Realize'.toLowerCase());
+            _handleUrlChange(url);
 
             if (url.toLowerCase() == Constants.tpayBaseUrl.toLowerCase()) {
               _closeAndReturn();
@@ -137,27 +149,14 @@ class _TpayScreenState extends State<TpayScreen> {
     );
   }
 
-  Future<bool> _onWillPop() async {
-    if (isRealizing) {
-      return false; // Prevent going back if transaction is being realized
-    }
-
-    final currentUrl = await controller.currentUrl();
-    if (currentUrl == widget.successUrl) {
-      _closeAndReturn(result: TpayResult.success);
-      return true;
-    } else if (currentUrl == widget.errorUrl) {
-      _closeAndReturn();
-      return true;
-    }
-
-    return (await _showCloseDialog()) ?? false;
-  }
-
+  // PopScope widget
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: canPop,
+      onPopInvoked: (didPop) {
+        if (!didPop && canPop) _showCloseDialog();
+      },
       child: Scaffold(
         appBar: AppBar(
           title: widget.title,
