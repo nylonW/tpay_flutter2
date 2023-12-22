@@ -67,7 +67,7 @@ class _TpayScreenState extends State<TpayScreen> {
     final ignore = ignoreUrls.any(
       (url) => currentUrl?.toLowerCase().startsWith(url.toLowerCase()) ?? false,
     );
-    
+
     if (ignore) {
       // Do nothing if realizing
     } else if (currentUrl == widget.successUrl) {
@@ -75,7 +75,11 @@ class _TpayScreenState extends State<TpayScreen> {
     } else if (currentUrl == widget.errorUrl) {
       _closeAndReturn();
     } else {
-      await _showCloseDialog(); // Show dialog for other cases
+      final dialogResult = await _showCloseDialog();
+
+      if (dialogResult ?? false) {
+        _closeAndReturn(result: TpayResult.backButtonPressed);
+      }
     }
   }
 
