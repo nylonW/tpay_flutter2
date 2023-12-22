@@ -108,28 +108,28 @@ class _TpayScreenState extends State<TpayScreen> {
     return showDialog<bool>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => PopScope(
-        canPop: false,
-        child: AlertDialog(
+      builder: (BuildContext context) {
+        return AlertDialog(
           title: Text(widget.exitAlertTitle),
           content: Text(widget.exitAlertContent),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(true);
+                Navigator.of(context)
+                    .pop(true); // Return true to indicate a desire to exit
               },
               child: Text(widget.positiveAlertButtonLabel),
             ),
             TextButton(
-              onPressed: () =>
-                  _closeAndReturn(result: TpayResult.backButtonPressed),
-              child: Text(
-                widget.negativeAlertButtonLabel,
-              ),
+              onPressed: () {
+                Navigator.of(context)
+                    .pop(false); // Return false to stay on the screen
+              },
+              child: Text(widget.negativeAlertButtonLabel),
             ),
           ],
-        ),
-      ),
+        );
+      },
     );
   }
 
