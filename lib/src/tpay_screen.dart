@@ -83,9 +83,8 @@ class _TpayScreenState extends State<TpayScreen> {
           onPageStarted: (url) {
             print(url);
 
-            isRealizing = url
-                .toLowerCase()
-                .startsWith('https://secure.tpay.com/Confirmation/Realize');
+            isRealizing = url.toLowerCase().startsWith(
+                'https://secure.tpay.com/Confirmation/Realize'.toLowerCase());
 
             if (url.toLowerCase() == Constants.tpayBaseUrl.toLowerCase()) {
               _closeAndReturn();
@@ -141,9 +140,18 @@ class _TpayScreenState extends State<TpayScreen> {
   Future<bool> _onWillPop() async {
     if (isRealizing) {
       return false; // Prevent going back if transaction is being realized
-    } else {
-      return (await _showCloseDialog()) ?? false;
     }
+
+    final currentUrl = await controller.currentUrl();
+    if (currentUrl == widget.successUrl) {
+      _closeAndReturn(result: TpayResult.success);
+      return false;
+    } else if (currentUrl == widget.errorUrl) {
+      _closeAndReturn();
+      return false;
+    }
+
+    return (await _showCloseDialog()) ?? false;
   }
 
   @override
