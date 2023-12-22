@@ -54,7 +54,6 @@ class TpayScreen extends StatefulWidget {
 
 class _TpayScreenState extends State<TpayScreen> {
   final controller = WebViewController();
-  bool shouldOverrideBackButton = false;
 
   @override
   void initState() {
@@ -80,9 +79,6 @@ class _TpayScreenState extends State<TpayScreen> {
           },
           onPageStarted: (url) {
             print(url);
-
-            shouldOverrideBackButton =
-                url.startsWith('https://secure.tpay.com/Confirmation/');
 
             if (url.toLowerCase() == Constants.tpayBaseUrl.toLowerCase()) {
               _closeAndReturn();
@@ -134,9 +130,11 @@ class _TpayScreenState extends State<TpayScreen> {
   }
 
   Future<bool> _onWillPop() async {
-    if (shouldOverrideBackButton && await controller.canGoBack()) {
-      await controller.goBack();
-      return false;
+    String? currentUrl = await controller.currentUrl();
+    if (currentUrl?.startsWith(
+            'https://secure.tpay.com/Confirmation/Realize/transaction') ??
+        false) {
+      return false; // Prevent going back
     } else {
       return (await _showCloseDialog()) ?? false;
     }
