@@ -130,7 +130,7 @@ class _TpayScreenState extends State<TpayScreen> {
   }
 
   Future<bool> _onWillPop() async {
-    String? currentUrl = await controller.currentUrl();
+    final currentUrl = await controller.currentUrl();
     if (currentUrl?.startsWith(
             'https://secure.tpay.com/Confirmation/Realize/transaction') ??
         false) {
@@ -156,7 +156,7 @@ class _TpayScreenState extends State<TpayScreen> {
   void _closeAndReturn({TpayResult? result}) {
     final tpayResult = result ?? TpayResult.error;
 
-    Navigator.of(context).pop(tpayResult);
+    Navigator.of(context, rootNavigator: true).pop(tpayResult);
   }
 
   @override
