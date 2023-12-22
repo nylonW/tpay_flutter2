@@ -71,6 +71,21 @@ class _TpayScreenState extends State<TpayScreen> {
     }
   }
 
+  void _handleBackNavigation() async {
+    String? currentUrl = await controller.currentUrl();
+    if (currentUrl?.startsWith(
+            'https://secure.tpay.com/Confirmation/Realize/transaction') ??
+        false) {
+      // Do nothing if realizing
+    } else if (currentUrl == widget.successUrl) {
+      _closeAndReturn(result: TpayResult.success);
+    } else if (currentUrl == widget.errorUrl) {
+      _closeAndReturn();
+    } else {
+      await _showCloseDialog(); // Show dialog for other cases
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -153,9 +168,9 @@ class _TpayScreenState extends State<TpayScreen> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: canPop,
+      canPop: false,
       onPopInvoked: (didPop) {
-        if (!didPop && canPop) _showCloseDialog();
+        _handleBackNavigation();
       },
       child: Scaffold(
         appBar: AppBar(
