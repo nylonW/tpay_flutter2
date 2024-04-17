@@ -8,9 +8,9 @@ import 'package:webview_flutter/webview_flutter.dart';
 class TpayScreen extends StatefulWidget {
   /// Creates Tpay screen used for payments.
   const TpayScreen({
-    Key? key,
-    this.successUrl = 'about:blank?status=success',
-    this.errorUrl = 'about:blank?status=error',
+    super.key,
+    this.successUrl = 'https://secure.tpay.com/mobile-sdk/success',
+    this.errorUrl = 'https://secure.tpay.com/mobile-sdk/error',
     required this.payment,
     this.title,
     this.exitAlertTitle = 'Do you want to cancel payment?',
@@ -93,6 +93,7 @@ class _TpayScreenState extends State<TpayScreen> {
       ..addJavaScriptChannel(
         'Tpay',
         onMessageReceived: (message) {
+          print('onMessageReceived: ${message.message}');
           if (message.message == 'onPaymentSuccess') {
             _closeAndReturn(result: TpayResult.success);
           } else if (message.message == 'onPaymentFail') {
@@ -102,16 +103,9 @@ class _TpayScreenState extends State<TpayScreen> {
       )
       ..setNavigationDelegate(
         NavigationDelegate(
-          onProgress: (progress) {
-            print(progress);
-          },
-          onUrlChange: (urlChange) {
-            final url = urlChange.url ?? '';
-            print(url);
-          },
+          onProgress: (progress) {},
           onPageStarted: (url) {
-            print(url);
-
+            print('onPageStarted: $url');
             if (url.toLowerCase() == Constants.tpayBaseUrl.toLowerCase()) {
               _closeAndReturn();
             } else if (url.contains('error.php')) {
@@ -119,6 +113,8 @@ class _TpayScreenState extends State<TpayScreen> {
             }
           },
           onPageFinished: (url) {
+            print('onPageFinished: $url');
+            print('widget.successUrl: ${widget.successUrl}');
             if (url.toLowerCase().startsWith(widget.successUrl.toLowerCase())) {
               _closeAndReturn(result: TpayResult.success);
             } else if (url
@@ -130,6 +126,32 @@ class _TpayScreenState extends State<TpayScreen> {
         ),
       )
       ..loadRequest(Uri.parse(widget.payment.paymentLink ?? ''));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (didPop) {
+          return;
+        }
+
+        await _handleBackNavigation();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: widget.title,
+        ),
+        body: WebViewWidget(controller: controller),
+      ),
+    );
+  }
+
+  void _closeAndReturn({TpayResult? result}) {
+    final tpayResult = result ?? TpayResult.error;
+
+    Navigator.of(context).pop(tpayResult);
   }
 
   Future<bool?> _showCloseDialog() async {
@@ -167,67 +189,5 @@ class _TpayScreenState extends State<TpayScreen> {
     dialogContext = null;
 
     return dialogResults;
-  }
-
-  // PopScope widget
-  @override
-  Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvoked: (didPop) async {
-        if (didPop) {
-          return;
-        }
-        await _handleBackNavigation();
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          title: widget.title,
-        ),
-        body: WebView(
-          initialUrl: widget.payment.paymentLink,
-          onPageStarted: (url) {
-            if (url.toLowerCase() == Constants.tpayBaseUrl.toLowerCase()) {
-              _closeAndReturn();
-            } else if (url.contains('error.php')) {
-              _closeAndReturn(result: TpayResult.sessionClosed);
-            }
-          },
-          onPageFinished: (url) {
-            if (url.toLowerCase() == Constants.tpayBaseUrl.toLowerCase()) {
-              _closeAndReturn();
-            } else if (url.contains('error.php')) {
-              _closeAndReturn(result: TpayResult.sessionClosed);
-            }
-          },
-          javascriptMode: JavascriptMode.unrestricted,
-          navigationDelegate: (request) {
-            if (request.url.toLowerCase() ==
-                Constants.tpayBaseUrl.toLowerCase()) {
-              _closeAndReturn();
-            } else if (request.url.contains('error.php')) {
-              _closeAndReturn(result: TpayResult.sessionClosed);
-            }
-
-            return NavigationDecision.navigate;
-          },
-        ),
-      ),
-    );
-  }
-
-  void _closeAndReturn({TpayResult? result}) {
-    final tpayResult = result ?? TpayResult.error;
-
-    if (dialogContext != null) {
-      Navigator.of(dialogContext!).pop();
-    }
-
-    Navigator.of(context, rootNavigator: false).pop(tpayResult);
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }

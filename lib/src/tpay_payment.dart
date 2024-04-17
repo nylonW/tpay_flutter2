@@ -19,8 +19,8 @@ class TpayPayment {
     this.resultEmail,
     this.sellerDescription,
     this.additionalDescription,
-    this.returnUrl = 'about:blank?status=success',
-    this.returnErrorUrl = 'about:blank?status=error',
+    this.returnUrl = 'https://secure.tpay.com/mobile-sdk/success',
+    this.returnErrorUrl = 'https://secure.tpay.com/mobile-sdk/error',
     this.language,
     this.clientEmail,
     this.clientName,
@@ -56,8 +56,10 @@ class TpayPayment {
           clientPhone: clientPhone,
           acceptTerms: acceptTerms,
         ),
-        assert(md5Code != null || securityCode != null,
-            'You must provide either md5Code or securityCode',);
+        assert(
+          md5Code != null || securityCode != null,
+          'You must provide either md5Code or securityCode',
+        );
 
   /// Creates a new Tpay payment from a payment link.
   TpayPayment.fromLink(this.paymentLink)
@@ -187,8 +189,8 @@ class TpayPayment {
     String? resultEmail,
     String? sellerDescription,
     String? additionalDescription,
-    String? returnUrl = 'about:blank?status=success',
-    String? returnErrorUrl = 'about:blank?status=error',
+    String? returnUrl = 'https://secure.tpay.com/mobile-sdk/success',
+    String? returnErrorUrl = 'https://secure.tpay.com/mobile-sdk/error',
     String? language,
     String? clientEmail,
     String? clientName,
@@ -201,8 +203,8 @@ class TpayPayment {
   }) {
     final buffer = StringBuffer('https://secure.tpay.com/?id=')
       ..write(Uri.encodeComponent(id ?? ''))
-      ..writeAndUrlEncode('kwota', amount)
-      ..writeAndUrlEncode('opis', description)
+      ..writeAndUrlEncode('amount', amount)
+      ..writeAndUrlEncode('description', description)
       ..writeAndUrlEncode('crc', crc);
 
     if (md5Code?.isNotEmpty ?? false) {
@@ -228,31 +230,31 @@ class TpayPayment {
     }
 
     if (resultUrl?.isNotEmpty ?? false) {
-      buffer.writeAndUrlEncode('wyn_url', returnUrl);
+      buffer.writeAndUrlEncode('result_url', returnUrl);
     }
 
     if (resultEmail?.isNotEmpty ?? false) {
-      buffer.writeAndUrlEncode('wyn_email', resultEmail);
+      buffer.writeAndUrlEncode('result_email', resultEmail);
     }
 
     if (sellerDescription?.isNotEmpty ?? false) {
-      buffer.writeAndUrlEncode('opis_sprzed', sellerDescription);
+      buffer.writeAndUrlEncode('merchant_description', sellerDescription);
     }
 
     if (additionalDescription?.isNotEmpty ?? false) {
-      buffer.writeAndUrlEncode('opis_dodatkowy', additionalDescription);
+      buffer.writeAndUrlEncode('custom_description', additionalDescription);
     }
 
     if (returnUrl?.isNotEmpty ?? false) {
-      buffer.writeAndUrlEncode('pow_url', returnUrl);
+      buffer.writeAndUrlEncode('return_url', returnUrl);
     }
 
     if (returnErrorUrl?.isNotEmpty ?? false) {
-      buffer.writeAndUrlEncode('pow_url_blad', returnErrorUrl);
+      buffer.writeAndUrlEncode('return_error_url', returnErrorUrl);
     }
 
     if (language?.isNotEmpty ?? false) {
-      buffer.writeAndUrlEncode('jezyk', language);
+      buffer.writeAndUrlEncode('language', language);
     }
 
     if (clientEmail?.isNotEmpty ?? false) {
@@ -260,31 +262,31 @@ class TpayPayment {
     }
 
     if (clientName?.isNotEmpty ?? false) {
-      buffer.writeAndUrlEncode('nazwisko', clientName);
+      buffer.writeAndUrlEncode('name', clientName);
     }
 
     if (clientAddress?.isNotEmpty ?? false) {
-      buffer.writeAndUrlEncode('adres', clientAddress);
+      buffer.writeAndUrlEncode('address', clientAddress);
     }
 
     if (clientCity?.isNotEmpty ?? false) {
-      buffer.writeAndUrlEncode('miasto', clientCity);
+      buffer.writeAndUrlEncode('city', clientCity);
     }
 
     if (clientCode?.isNotEmpty ?? false) {
-      buffer.writeAndUrlEncode('kod', clientCode);
+      buffer.writeAndUrlEncode('zip', clientCode);
     }
 
     if (clientCountry?.isNotEmpty ?? false) {
-      buffer.writeAndUrlEncode('kraj', clientCountry);
+      buffer.writeAndUrlEncode('country', clientCountry);
     }
 
     if (clientPhone?.isNotEmpty ?? false) {
-      buffer.writeAndUrlEncode('telefon', clientPhone);
+      buffer.writeAndUrlEncode('phone', clientPhone);
     }
 
     if (acceptTerms?.isNotEmpty ?? false) {
-      buffer.writeAndUrlEncode('akceptuje_regulamin', acceptTerms);
+      buffer.writeAndUrlEncode('accept_tos', acceptTerms);
     }
 
     return buffer.toString();
